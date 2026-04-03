@@ -3,9 +3,7 @@ from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
 bot = telebot.TeleBot("8743365765:AAErc_VNcfbqegNJ3Ay2tUSHx4Bleeb4WX0")
 
-from telebot.types import ReplyKeyboardMarkup, KeyboardButton
-
-# Menu buttons
+# MAIN MENU
 def main_menu():
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(
@@ -27,7 +25,7 @@ def start(message):
 def reply(message):
     text = message.text.lower()
 
-    # Animation collection menu
+    # ================= ANIMATION =================
     if text == "tamil animation collection":
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(
@@ -42,7 +40,6 @@ def reply(message):
         )
         bot.send_message(message.chat.id, "Choose animation 👇", reply_markup=markup)
 
-    # Individual animations
     elif text == "doraemon":
         bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_DORAEMON)
 
@@ -64,7 +61,7 @@ def reply(message):
     elif text == "shinchan":
         bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_SHINCHAN)
 
-    # 🔥 SOLO LEVELING MENU
+    # SOLO LEVELING MENU
     elif text == "solo leveling":
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(
@@ -74,7 +71,6 @@ def reply(message):
         )
         bot.send_message(message.chat.id, "Choose episode 👇", reply_markup=markup)
 
-    # Episodes
     elif "solo leveling ep1" in text or "so1" in text:
         bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_SOLO1)
 
@@ -84,10 +80,7 @@ def reply(message):
     elif "solo leveling ep3" in text or "so3" in text:
         bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_SOLO3)
 
-    else:
-        bot.send_message(message.chat.id, "Type /start bro")
-
-    # Movies collection
+    # ================= MOVIES =================
     elif text == "tamil movies collection":
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(
@@ -97,12 +90,12 @@ def reply(message):
         bot.send_message(message.chat.id, "Choose movie 👇", reply_markup=markup)
 
     elif text == "leo":
-        bot.forward_message(message.chat.id, FROM_CHAT_ID, MESSAGE_ID3)
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_LEO)
 
     elif text == "jailer":
-        bot.forward_message(message.chat.id, FROM_CHAT_ID, MESSAGE_ID4)
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_JAILER)
 
-    # Dub movies
+    # ================= DUB MOVIES =================
     elif text == "tamil dub movie collection":
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(
@@ -112,12 +105,14 @@ def reply(message):
         bot.send_message(message.chat.id, "Choose dub movie 👇", reply_markup=markup)
 
     elif text == "avengers":
-        bot.forward_message(message.chat.id, FROM_CHAT_ID, MESSAGE_ID5)
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_AVENGERS)
 
     elif text == "spiderman":
-        bot.forward_message(message.chat.id, FROM_CHAT_ID, MESSAGE_ID6)
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_SPIDERMAN)
 
+    # ================= DEFAULT =================
     else:
         bot.send_message(message.chat.id, "Type /start bro")
+
 
 bot.polling()

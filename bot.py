@@ -3,27 +3,31 @@ from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
 bot = telebot.TeleBot("8743365765:AAErc_VNcfbqegNJ3Ay2tUSHx4Bleeb4WX0")
 
+from telebot.types import ReplyKeyboardMarkup, KeyboardButton
+
 # Menu buttons
 def main_menu():
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(
         KeyboardButton("tamil animation collection"),
         KeyboardButton("tamil movies collection"),
-        KeyboardButton("editing scence pack"),
+        KeyboardButton("editing scene pack"),
         KeyboardButton("vfx"),
         KeyboardButton("tamil dub movie collection")
     )
     return markup
 
+
 @bot.message_handler(commands=['start'])
 def start(message):
     bot.send_message(message.chat.id, "Select collection 👇", reply_markup=main_menu())
+
 
 @bot.message_handler(func=lambda message: True)
 def reply(message):
     text = message.text.lower()
 
-    # Animation collection
+    # Animation collection menu
     if text == "tamil animation collection":
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(
@@ -33,27 +37,55 @@ def reply(message):
             KeyboardButton("Naruto classic"),
             KeyboardButton("Naruto shippuden"),
             KeyboardButton("Demon slayer"),
-            KeyboardButton("Attack on titain"),
+            KeyboardButton("Attack on titan"),
             KeyboardButton("Shinchan")
         )
         bot.send_message(message.chat.id, "Choose animation 👇", reply_markup=markup)
 
+    # Individual animations
     elif text == "doraemon":
-        bot.forward_message(message.chat.id, FROM_CHAT_ID, MESSAGE_ID1)
-    elif text == "solo leveling":
-        bot.forward_message(message.chat.id, FROM_CHAT_ID, MESSAGE_ID1)
-    elif text == "naruto classic":
-        bot.forward_message(message.chat.id, FROM_CHAT_ID, MESSAGE_ID1)
-    elif text == "naruto shippuden":
-        bot.forward_message(message.chat.id, FROM_CHAT_ID, MESSAGE_ID1)
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_DORAEMON)
+
     elif text == "death note":
-        bot.forward_message(message.chat.id, FROM_CHAT_ID, MESSAGE_ID1)
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_DEATHNOTE)
+
+    elif text == "naruto classic":
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_NARUTO1)
+
+    elif text == "naruto shippuden":
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_NARUTO2)
+
     elif text == "demon slayer":
-        bot.forward_message(message.chat.id, FROM_CHAT_ID, MESSAGE_ID1)
-    elif text == "attack on titain":
-        bot.forward_message(message.chat.id, FROM_CHAT_ID, MESSAGE_ID1)
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_DEMON)
+
+    elif text == "attack on titan":
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_AOT)
+
     elif text == "shinchan":
-        bot.forward_message(message.chat.id, FROM_CHAT_ID, MESSAGE_ID2)
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_SHINCHAN)
+
+    # 🔥 SOLO LEVELING MENU
+    elif text == "solo leveling":
+        markup = ReplyKeyboardMarkup(resize_keyboard=True)
+        markup.add(
+            KeyboardButton("SOLO LEVELING EP1"),
+            KeyboardButton("SOLO LEVELING EP2"),
+            KeyboardButton("SOLO LEVELING EP3")
+        )
+        bot.send_message(message.chat.id, "Choose episode 👇", reply_markup=markup)
+
+    # Episodes
+    elif "solo leveling ep1" in text or "so1" in text:
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_SOLO1)
+
+    elif "solo leveling ep2" in text or "so2" in text:
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_SOLO2)
+
+    elif "solo leveling ep3" in text or "so3" in text:
+        bot.forward_message(message.chat.id, FROM_CHAT_ID, MSG_SOLO3)
+
+    else:
+        bot.send_message(message.chat.id, "Type /start bro")
 
     # Movies collection
     elif text == "tamil movies collection":

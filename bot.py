@@ -1,7 +1,7 @@
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 
-bot = telebot.TeleBot("8601263001:AAGud6KjlZ4HkgSq1U1E7l7n4VrBYYPWh9s")
+bot = telebot.TeleBot("8743365765:AAErc_VNcfbqegNJ3Ay2tUSHx4Bleeb4WX0")
 
 # Menu buttons
 def main_menu():

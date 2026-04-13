@@ -2,7 +2,7 @@ import telebot
 from telebot.types import ReplyKeyboardMarkup
 import json, threading, time, os
 
-BOT_TOKEN = "8729100545:AAG5pbimhEBAYDQh5Oa7D4TZdeCZNsNCGoQ"
+BOT_TOKEN = "8729100545:AAEGxAJA8J8FVeux6uFnejS5aI4rlNegnVQ"
 ADMIN_ID = 6396618197
 
 bot = telebot.TeleBot(BOT_TOKEN)

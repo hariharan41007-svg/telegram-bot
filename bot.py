@@ -1,11 +1,24 @@
 import telebot
 from telebot.types import ReplyKeyboardMarkup
 import json, threading, time, os
+from flask import Flask
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_ID = 6396618197
 
 bot = telebot.TeleBot(BOT_TOKEN)
+
+# ---------------- FLASK (RENDER FIX) ----------------
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+def run_web():
+    app.run(host="0.0.0.0", port=10000)
+
+threading.Thread(target=run_web).start()
 
 # ---------------- DATA ----------------
 try:
@@ -42,7 +55,7 @@ def main_menu():
 def start(msg):
     bot.send_message(msg.chat.id, "🔥 Welcome bro 😎", reply_markup=main_menu())
 
-@bot.message_handler(func=lambda m: m.text == "🔙 Back")
+@bot.message_handler(func=lambda m: m.text and m.text.lower() in ["back","🔙 back"])
 def back(m):
     bot.send_message(m.chat.id, "Back 👇", reply_markup=main_menu())
 
@@ -185,12 +198,7 @@ def send_files(chat_id, item, title):
     for i, f in enumerate(files, start=1):
         caption = f"🎬 {title} - EP{i}"
 
-        video_msg = bot.send_video(
-            chat_id,
-            f,
-            caption=caption,
-            thumb=thumb
-        )
+        video_msg = bot.send_video(chat_id, f, caption=caption, thumb=thumb)
 
         warn_msg = bot.send_message(
             chat_id,
@@ -200,12 +208,15 @@ def send_files(chat_id, item, title):
         auto_delete(chat_id, video_msg.message_id)
         auto_delete(chat_id, warn_msg.message_id)
 
-# ---------------- RUN (FINAL FIX 🔥) ----------------
+# ---------------- RUN ----------------
 print("🔥 Bot running...")
 
-while True:
-    try:
-        bot.infinity_polling(timeout=10, long_polling_timeout=5)
-    except Exception as e:
-        print(f"Error: {e}")
-        time.sleep(5)
+def run_bot():
+    while True:
+        try:
+            bot.infinity_polling(timeout=10, long_polling_timeout=5)
+        except Exception as e:
+            print(f"Error: {e}")
+            time.sleep(5)
+
+threading.Thread(target=run_bot).start()

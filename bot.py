@@ -2,7 +2,7 @@ import telebot
 from telebot.types import ReplyKeyboardMarkup
 import json, threading, time, os
 
-BOT_TOKEN = "8729100545:AAEGxAJA8J8FVeux6uFnejS5aI4rlNegnVQ"
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_ID = 6396618197
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -66,7 +66,6 @@ def add(m):
     if m.from_user.id != ADMIN_ID:
         return
 
-    # Example: #add Anime SoloLeveling S1
     parts = m.text.split()
 
     if len(parts) < 3:
@@ -201,6 +200,12 @@ def send_files(chat_id, item, title):
         auto_delete(chat_id, video_msg.message_id)
         auto_delete(chat_id, warn_msg.message_id)
 
-# ---------------- RUN ----------------
+# ---------------- RUN (FINAL FIX 🔥) ----------------
 print("🔥 Bot running...")
-bot.infinity_polling()
+
+while True:
+    try:
+        bot.infinity_polling(timeout=10, long_polling_timeout=5)
+    except Exception as e:
+        print(f"Error: {e}")
+        time.sleep(5)

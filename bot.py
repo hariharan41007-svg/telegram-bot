@@ -129,23 +129,10 @@ def receive_file(m):
 
     if fid:
         data_user["files"].append(fid)
+# DELETE ✅ (inga dhaan podanum)
 @bot.message_handler(func=lambda m: m.text and m.text.startswith("#delete"))
 def delete_movie(m):
-    if m.from_user.id != ADMIN_ID:
-        return
-
-    name = m.text.replace("#delete", "").strip()
-
-    if not name:
-        bot.reply_to(m, "❌ Use: #delete MovieName")
-        return
-
-    if name in data:
-        del data[name]
-        save_data()
-        bot.reply_to(m, f"🗑 {name} deleted successfully")
-    else:
-        bot.reply_to(m, "❌ Not found")
+    ...
 # 👉 DONE COMMAND
 @bot.message_handler(commands=['done'])
 def done_upload(m):

@@ -6,13 +6,12 @@ import time
 from flask import Flask
 
 # ================= CONFIG =================
-BOT_TOKEN = "8729100545:AAG3Dq7YNuLFFHvzRufC3-wgPlcI4xUJoxk"
-ADMIN_ID = 6396618197 # 👉 unga Telegram ID
+BOT_TOKEN = "8729100545:AAH8VCIq31WKDuGkKIdfKxOGePxMDXTgL0I"
+ADMIN_ID = 6396618197
 CHANNEL_USERNAME = "@tamilanimepack"
-
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# ================= FLASK (Render fix) =================
+# ================= FLASK =================
 app = Flask(__name__)
 
 @app.route('/')
@@ -34,7 +33,7 @@ def save_data():
         json.dump(data, f, indent=4)
 
 # ================= AUTO DELETE =================
-def auto_delete(chat_id, msg_id, delay=300):  # 5 mins
+def auto_delete(chat_id, msg_id, delay=300):
     def delete():
         time.sleep(delay)
         try:
@@ -58,57 +57,59 @@ def main_menu():
 def start(message):
     bot.send_message(
         message.chat.id,
-        f"🔥 Welcome {message.from_user.first_name}\n\nJoin: {CHANNEL_USERNAME}",
+        f"🔥 Welcome {message.from_user.first_name}\nJoin: {CHANNEL_USERNAME}",
         reply_markup=main_menu()
     )
 
-# ================= UPLOAD SYSTEM =================
+# ================= UPLOAD =================
 user_upload = {}
+episode_count = {}
 
-# 👉 ADD COMMAND (SMART CATEGORY)
 @bot.message_handler(func=lambda m: m.text and m.text.startswith("#add"))
-def add_movie(m):
+def add(m):
     if m.from_user.id != ADMIN_ID:
         return
 
     text = m.text.replace("#add", "").strip()
-
-    if not text:
-        bot.reply_to(m, "❌ Use: #add Movies Name")
-        return
-
-    parts = text.split(" ", 1)
+    parts = text.split(" ")
 
     if len(parts) < 2:
-        bot.reply_to(m, "❌ Use: #add Movies Name")
+        bot.reply_to(m, "❌ Use: #add Animation Name S1")
         return
 
     raw = parts[0].lower()
 
-    if raw in ["movie", "movies"]:
+    if raw in ["movie","movies"]:
         category = "Movies"
-    elif raw in ["anime", "animation"]:
+    elif raw in ["anime","animation"]:
         category = "Animation"
-    elif raw in ["dub", "dubbed"]:
+    elif raw in ["dub","dubbed"]:
         category = "Dubbed"
     else:
-        bot.reply_to(m, "❌ Category must be Movies / Animation / Dubbed")
+        bot.reply_to(m, "❌ Wrong category")
         return
 
     name = parts[1]
+    season = parts[2] if len(parts) > 2 else "S1"
+
+    key = f"{name} {season}"
 
     user_upload[m.from_user.id] = {
         "category": category,
         "name": name,
+        "season": season,
+        "key": key,
         "files": [],
         "thumb": None
     }
 
-    bot.reply_to(m, f"📤 Upload started for {name}\nSend thumbnail first, then videos")
+    episode_count[m.from_user.id] = 0
 
-# 👉 FILE RECEIVE (forward support)
+    bot.reply_to(m, f"📤 Upload {name} {season}\nSend thumbnail + videos")
+
+# ================= FILE =================
 @bot.message_handler(content_types=['photo','video','document'])
-def receive_file(m):
+def file(m):
     if m.from_user.id not in user_upload:
         return
 
@@ -119,28 +120,23 @@ def receive_file(m):
         data_user["thumb"] = m.photo[-1].file_id
         return
 
-    # Video / document (forward included)
-    fid = None
+    fid = m.video.file_id if m.video else m.document.file_id
 
-    if m.video:
-        fid = m.video.file_id
-    elif m.document:
-        fid = m.document.file_id
+    episode_count[m.from_user.id] += 1
 
-    if fid:
-        data_user["files"].append(fid)
-# DELETE ✅ (inga dhaan podanum)
-@bot.message_handler(func=lambda m: m.text and m.text.startswith("#delete"))
-def delete_movie(m):
-    ...
-# 👉 DONE COMMAND
+    data_user["files"].append({
+        "file_id": fid,
+        "ep": episode_count[m.from_user.id]
+    })
+
+# ================= DONE =================
 @bot.message_handler(commands=['done'])
-def done_upload(m):
+def done(m):
     if m.from_user.id != ADMIN_ID:
         return
 
     if m.from_user.id not in user_upload:
-        bot.reply_to(m, "❌ No active upload")
+        bot.reply_to(m, "❌ No upload")
         return
 
     info = user_upload.pop(m.from_user.id)
@@ -149,51 +145,90 @@ def done_upload(m):
         bot.reply_to(m, "❌ No files uploaded")
         return
 
-    name = info["name"]
-    data[name] = info
+    data[info["key"]] = info
     save_data()
 
-    bot.reply_to(m, f"✅ {name} saved successfully!")
+    episode_count.pop(m.from_user.id, None)
+
+    bot.reply_to(m, f"✅ {info['key']} saved!")
+
+# ================= DELETE =================
+@bot.message_handler(func=lambda m: m.text and m.text.startswith("#delete"))
+def delete(m):
+    if m.from_user.id != ADMIN_ID:
+        return
+
+    name = m.text.replace("#delete","").strip().lower()
+
+    found = None
+    for k in data:
+        if name in k.lower():
+            found = k
+            break
+
+    if found:
+        del data[found]
+        save_data()
+        bot.reply_to(m, f"🗑 {found} deleted")
+    else:
+        bot.reply_to(m, "❌ Not found")
 
 # ================= SHOW CATEGORY =================
 @bot.message_handler(func=lambda m: m.text in ["🎬 Movies","🎞 Animation","🌐 Dubbed"])
-def show_category(m):
-    category = m.text
-
-    if "Movies" in category:
-        category = "Movies"
-    elif "Animation" in category:
-        category = "Animation"
-    elif "Dubbed" in category:
-        category = "Dubbed"
+def show_cat(m):
+    cat = m.text.split(" ")[1]
 
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
+    added = set()
 
-    found = False
-    for item in data:
-        if data[item]["category"] == category:
-            markup.add(KeyboardButton(item))
-            found = True
+    for k,v in data.items():
+        if v["category"] == cat:
+            added.add(v["name"])
+
+    for i in added:
+        markup.add(KeyboardButton(i))
 
     markup.add(KeyboardButton("🔙 Back"))
+    bot.send_message(m.chat.id, "Choose 👇", reply_markup=markup)
 
-    if found:
-        bot.send_message(m.chat.id, f"{category} list 👇", reply_markup=markup)
-    else:
-        bot.send_message(m.chat.id, "❌ No items found", reply_markup=markup)
+# ================= SHOW SEASON =================
+@bot.message_handler(func=lambda m: any(v["name"] == m.text for v in data.values()))
+def show_season(m):
+    markup = ReplyKeyboardMarkup(resize_keyboard=True)
 
-# ================= SEND FILE =================
-@bot.message_handler(func=lambda m: m.text in data)
-def send_movie(m):
-    item = data[m.text]
+    for k,v in data.items():
+        if v["name"] == m.text:
+            markup.add(KeyboardButton(v["season"]))
 
-    for file_id in item["files"]:
-        msg = bot.send_video(
-            m.chat.id,
-            file_id,
-            caption=f"🎬 {m.text}\n\n⚠️ This video will be deleted in 5 minutes"
-        )
-        auto_delete(m.chat.id, msg.message_id)
+    markup.add(KeyboardButton("🔙 Back"))
+    bot.send_message(m.chat.id, "Choose Season 👇", reply_markup=markup)
+
+# ================= SEND =================
+@bot.message_handler(func=lambda m: any(m.text in k for k in data))
+def send(m):
+    for k,v in data.items():
+        if m.text in k:
+            for file in v["files"]:
+
+                ep = file.get("ep",1)
+
+                caption = f"""📺 {v['name']} {v['season']} - EP {ep}
+
+🔥 Enjoy your watching buddy's 😎
+📥 Forward to Saved Messages after download
+
+⚠️ Auto delete in 5 mins due to
+🚫 Copyright issue
+"""
+
+                msg = bot.send_video(
+                    m.chat.id,
+                    file["file_id"],
+                    caption=caption,
+                    thumb=v.get("thumb")
+                )
+
+                auto_delete(m.chat.id, msg.message_id)
 
 # ================= BACK =================
 @bot.message_handler(func=lambda m: m.text == "🔙 Back")
@@ -207,7 +242,6 @@ threading.Thread(target=run_web).start()
 
 while True:
     try:
-        bot.infinity_polling(timeout=10, long_polling_timeout=5)
-    except Exception as e:
-        print(e)
+        bot.infinity_polling()
+    except:
         time.sleep(5)

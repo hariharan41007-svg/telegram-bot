@@ -6,7 +6,7 @@ import time
 from flask import Flask
 
 # ================= CONFIG =================
-BOT_TOKEN = "8729100545:AAEGxAJA8J8FVeux6uFnejS5aI4rlNegnVQ"
+BOT_TOKEN = "8729100545:AAG3Dq7YNuLFFHvzRufC3-wgPlcI4xUJoxk"
 ADMIN_ID = 6396618197 # 👉 unga Telegram ID
 CHANNEL_USERNAME = "@tamilanimepack"
 

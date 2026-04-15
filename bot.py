@@ -219,4 +219,4 @@ def run_bot():
             print(f"Error: {e}")
             time.sleep(5)
 
-threading.Thread(target=run_bot).start()
+run_bot()
